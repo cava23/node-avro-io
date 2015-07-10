@@ -5,6 +5,7 @@ require('buffertools');
 var DataFile = require(libpath + 'datafile');
 var Avro = require(libpath + 'schema');
 var util = require('util');
+require('buffertools').extend();
 
 var dataFile;
 describe('AvroFile', function(){
@@ -108,7 +109,7 @@ describe('Block()', function(){
             (function() {
                 var block = new DataFile.Block(32);
                 block.write([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]);
-                block.skip(7);                
+                block.skip(7);
             }).should.throwError();
         });
     })
@@ -121,7 +122,7 @@ describe('Block()', function(){
         it('should return the specified sub section of a block', function(){
             var block = new DataFile.Block(32);
             block.write([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]);
-            block.slice(2,5).equals(new Buffer([0x03, 0x04, 0x05])).should.be.true;          
+            block.slice(2,5).equals(new Buffer([0x03, 0x04, 0x05])).should.be.true;
         })
     })
     describe('toBuffer()', function(){
@@ -157,7 +158,7 @@ describe('Writer()', function(){
             });
         writer.append("hello world");
         writer.end();
-    });      
+    });
     it('should read back data from the written file', function(done){
         var reader = DataFile.Reader();
         var fileStream = fs.createReadStream(dataFile);
@@ -177,18 +178,18 @@ describe('Writer()', function(){
         var i;
         var result = "";
         var stringSize = Math.floor(Math.random() * 512);
-        for (i = 0; i < stringSize; i++) 
+        for (i = 0; i < stringSize; i++)
             result += String.fromCharCode(Math.floor(Math.random() * 0xFF));
         return result;
     }
     function schemaGenerator() {
-        return { 
+        return {
             "testBoolean": Math.floor(Math.random() * 2) == 0 ? false : true,
-            "testString": randomString(), 
+            "testString": randomString(),
             "testLong": Math.floor(Math.random() * 1E10),
             "testDouble": Math.random(),
             "testBytes": new Buffer(randomString())
-        };  
+        };
     }
     it('should write a sequence marker after 16k of data to a file stream', function(done) {
         dataFile = __dirname + "/../test/data/test.writer.random.avro";
@@ -319,9 +320,9 @@ describe('Writer()', function(){
 describe('Reader()', function(){
 
     describe('streaming', function () {
-        
+
         it('should read a large avro data stream compressed with deflate', function(done){
-            
+
             var count = 0;
             var fileStream = fs.createReadStream(__dirname + "/data/log.deflate.avro");
 
@@ -344,7 +345,7 @@ describe('Reader()', function(){
         });
 
         it('should read a large avro data stream compressed with snappy', function(done){
-            
+
             var count = 0;
             var fileStream = fs.createReadStream(__dirname + "/data/log.snappy.avro");
 
@@ -363,9 +364,9 @@ describe('Reader()', function(){
                     count++;
                     //console.log(data.time, data.request.path, data.request.body.rememberMe || '[]' , data.response.status);
                 });
-        });    
+        });
     });
-    
+
     describe('decompressData()', function(){
         it('should compress a given buffer with deflate and return the compressed buffer', function(done){
             var reader = DataFile.Reader();
@@ -376,8 +377,8 @@ describe('Reader()', function(){
         });
         it('should compress a given buffer with snappy and return the compressed buffer', function(done){
             var reader = DataFile.Reader();
-            reader.decompressData(new Buffer([0x12, 0x44, 0x63, 0x6f, 0x6d, 0x70, 0x72, 0x65, 0x73, 
-                                              0x73, 0x20, 0x74, 0x68, 0x69, 0x73, 0x20, 0x74, 0x65, 
+            reader.decompressData(new Buffer([0x12, 0x44, 0x63, 0x6f, 0x6d, 0x70, 0x72, 0x65, 0x73,
+                                              0x73, 0x20, 0x74, 0x68, 0x69, 0x73, 0x20, 0x74, 0x65,
                                               0x78, 0x74, 0x6c, 0x25, 0xd9, 0x04]), "snappy", function(err, data) {
                 if (err) done(err);
                 data.toString().should.equal("compress this text");
@@ -402,13 +403,13 @@ describe('Reader()', function(){
     })
     describe('writing then reading', function() {
         it('should read an avro data file written and return the same data', function(done){
-            
+
             var dataFile = __dirname + "/data/test-array-strings.avro";
             var schema = "string";
             var fileStream = fs.createWriteStream(dataFile);
             var writer = DataFile.Writer(schema);
             var source = [
-                "The quick brown fox jumped over the lazy dogs", 
+                "The quick brown fox jumped over the lazy dogs",
                 "The time has come for all good men to come to the aid of...",
                 "Humpty dumpty sat on the wall, humpty dumpty had a great fall..."
             ];
@@ -442,9 +443,9 @@ describe('Reader()', function(){
                 })
                 .append(source[0])
                 .append(source[1])
-                .append(source[2])         
+                .append(source[2])
                 .end();
-                
+
         });
     });
 });
